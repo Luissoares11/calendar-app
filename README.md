@@ -20,7 +20,7 @@ A standalone microservice for managing calendar events, built to work with the E
 ### Setup
 
 ```bash
-git clone https://github.com/Luissoares11/calendar-service
+git clone https://github.com/Luissoares11/calendar-app
 cd calendar-service
 ```
 
