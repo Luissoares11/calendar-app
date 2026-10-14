@@ -1,0 +1,28 @@
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Claude
+.claude
+
+# Dependencies
+node_modules/
+yarn.lock
+
+# Build output
+dist/
+build/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+npm-debug.log
+yarn-error.log
+*.log

@@ -1,0 +1,23 @@
+services:
+  calendar-ui:
+    build:
+      context: .
+      args:
+        - VITE_CALENDAR_SERVICE_URL=${VITE_CALENDAR_SERVICE_URL:-http://100.91.106.89:8010}
+        - VITE_CALENDAR_API_TOKEN=${VITE_CALENDAR_API_TOKEN:-default-token}
+
+    container_name: calendar-ui
+
+    ports:
+      - "3000:3000"
+
+    restart: unless-stopped
+
+    networks:
+      - edith-network
+
+
+networks:
+  edith-network:
+    name: edith-network
+    driver: bridge
