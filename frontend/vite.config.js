@@ -58,6 +58,10 @@ export default defineConfig({
     open: true,
     headers: {
       'Cache-Control': 'no-cache'
+    },
+    proxy: {
+      '/events': 'http://localhost:8010',
+      '/health': 'http://localhost:8010'
     }
   },
   build: {

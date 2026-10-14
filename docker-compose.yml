@@ -1,30 +1,25 @@
 services:
   calendar:
-    # Build the image from the Dockerfile in the current directory
-    build: .
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+      args:
+        - VITE_CALENDAR_API_TOKEN=${CALENDAR_API_TOKEN:-default-token}
 
-    # Name the container
     container_name: calendar-service
 
-    # Map port 8010 on your machine to port 8010 inside the container
+    env_file: .env
+
+    # Only reachable from the server itself; Tailscale serve forwards to it
     ports:
-      - "8010:8010"
+      - "127.0.0.1:8010:8010"
 
-    # Environment variables passed into the container
-    environment:
-      - CALENDAR_API_TOKEN=${CALENDAR_API_TOKEN:-default-token}
-      - TIMEZONE=${TIMEZONE:-Europe/Lisbon}
-      - DATABASE_PATH=data/calendar.db
-
-    # Volumes — persist data outside the container on your host disk
     volumes:
-      - ./data:/app/data
-      - ./logs:/app/logs
+      - ./backend/data:/app/data
+      - ./backend/logs:/app/logs
 
-    # Restart automatically if it crashes
     restart: unless-stopped
 
-    # Network for inter-service communication
     networks:
       - edith-network
 

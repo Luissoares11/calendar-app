@@ -65,35 +65,32 @@ export default function App() {
   // Debug API on mount
   useEffect(() => {
     const debugAPI = async () => {
-      const apiUrl = import.meta.env.VITE_CALENDAR_SERVICE_URL
       const apiToken = import.meta.env.VITE_CALENDAR_API_TOKEN
       console.log('=== CALENDAR APP DEBUG ===')
-      console.log('API URL:', apiUrl)
+      console.log('API URL:', window.location.origin)
       console.log('API Token:', apiToken ? '✓ Present (trimmed)' : '✗ Missing')
 
-      if (apiUrl) {
-        try {
-          console.log(`Testing connection to ${apiUrl}/health`)
-          const response = await fetch(`${apiUrl}/health`, {
-            method: 'GET',
-            headers: { 'Accept': 'application/json' },
-            timeout: 5000
-          })
-          console.log('✅ Health check status:', response.status)
-          setApiStatus(`Connected (${response.status})`)
-        } catch (err) {
-          console.error('❌ API connection failed:', err.message)
-          setApiStatus(`Error: ${err.message}`)
+      try {
+        console.log('Testing connection to /health')
+        const response = await fetch('/health', {
+          method: 'GET',
+          headers: { 'Accept': 'application/json' },
+          timeout: 5000
+        })
+        console.log('✅ Health check status:', response.status)
+        setApiStatus(`Connected (${response.status})`)
+      } catch (err) {
+        console.error('❌ API connection failed:', err.message)
+        setApiStatus(`Error: ${err.message}`)
 
-          // After 8 seconds of loading, offer demo mode
-          const timeout = setTimeout(() => {
-            if (error) {
-              console.log('Offering demo mode as fallback...')
-            }
-          }, 8000)
+        // After 8 seconds of loading, offer demo mode
+        const timeout = setTimeout(() => {
+          if (error) {
+            console.log('Offering demo mode as fallback...')
+          }
+        }, 8000)
 
-          return () => clearTimeout(timeout)
-        }
+        return () => clearTimeout(timeout)
       }
     }
 
@@ -407,7 +404,7 @@ export default function App() {
           {demoMode ? '📱 Demo Mode' : apiStatus || '🔄 Connecting...'}
         </div>
         <div style={{ fontSize: '0.65rem', color: 'var(--text-tertiary)', marginTop: '0.25rem' }}>
-          {import.meta.env.VITE_CALENDAR_SERVICE_URL || 'No API URL'}
+          {window.location.origin}
         </div>
       </div>
     </div>

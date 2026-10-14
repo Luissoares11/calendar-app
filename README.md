@@ -22,9 +22,9 @@ A standalone microservice for managing calendar events, built to work with the E
 ```bash
 git clone https://github.com/Luissoares11/calendar-service
 cd calendar-service
-pip install -r requirements.txt
-cp .env  # fill in your config
 ```
+
+Create a `.env` file in the repository root (see [Environment Variables](#environment-variables)).
 
 ### Environment Variables
 
@@ -34,18 +34,36 @@ TIMEZONE=Europe/Lisbon
 DATABASE_PATH=data/calendar.db
 ```
 
+`CALENDAR_API_TOKEN` is also baked into the frontend bundle at build time, so the browser sends it with each request.
+
 ### Running Locally (Python)
 
+The backend serves the API only. To serve the UI too, build `frontend/` and set `FRONTEND_DIR` to its `dist/` folder.
+
 ```bash
+cd backend
+pip install -r requirements.txt
 python -m uvicorn server.main:app --host 0.0.0.0 --port 8010
 ```
 
+For frontend development, run the Vite dev server in `frontend/` alongside the backend. It proxies `/events` and `/health` to `localhost:8010`. Set `VITE_CALENDAR_API_TOKEN` in `frontend/.env.local` to the same value as `CALENDAR_API_TOKEN`.
+
 ### Running Locally (Docker)
+
+From the repository root:
 
 ```bash
 docker compose build
 docker compose up -d
 ```
+
+The image builds the frontend and serves it from the same port as the API, at http://localhost:8010. The port is bound to `127.0.0.1` only, so the app is reachable from the server itself, not from the network. To access it from other devices, publish it with Tailscale serve:
+
+```bash
+sudo tailscale serve --bg --https=8444 http://127.0.0.1:8010
+```
+
+Use a free HTTPS port (check with `sudo ss -tlnp`). Do not use `tailscale funnel` or `tailscale serve reset`, since these affect other apps on the machine.
 
 ## API Reference
 
@@ -290,20 +308,25 @@ Tests cover:
 
 ```
 calendar-service/
-├── app/
-│   ├── database.py          # SQLite setup & connection
-│   ├── utils.py             # Helper functions
-│   ├── models.py            # Pydantic models
-│   └── features/
-│       └── calendar.py      # Calendar business logic
-├── server/
-│   ├── main.py              # FastAPI app
-│   ├── auth.py              # Token verification
-│   └── routers/
-│       └── events.py        # Event endpoints
-├── Dockerfile
+├── backend/
+│   ├── app/
+│   │   ├── database.py      # SQLite setup & connection
+│   │   ├── utils.py         # Helper functions
+│   │   ├── models.py        # Pydantic models
+│   │   └── features/
+│   │       └── calendar.py  # Calendar business logic
+│   ├── server/
+│   │   ├── main.py          # FastAPI app
+│   │   ├── auth.py          # Token verification
+│   │   └── routers/
+│   │       └── events.py    # Event endpoints
+│   ├── tests/
+│   ├── Dockerfile           # Builds the frontend and runs the backend
+│   └── requirements.txt
+├── frontend/                # React + Vite UI (built into the backend image)
+├── .github/workflows/       # CI
 ├── docker-compose.yml
-├── requirements.txt
+├── .env
 └── README.md
 ```
 

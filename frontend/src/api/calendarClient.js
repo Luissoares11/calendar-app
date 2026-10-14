@@ -1,18 +1,11 @@
 import axios from 'axios'
 
-const API_URL = import.meta.env.VITE_CALENDAR_SERVICE_URL
 const API_TOKEN = import.meta.env.VITE_CALENDAR_API_TOKEN?.trim()
 
 console.log('Calendar API Configuration:')
-console.log('  URL:', API_URL)
 console.log('  Token:', API_TOKEN ? `✓ Set (${API_TOKEN.substring(0, 10)}...)` : '✗ Missing')
 
-if (!API_URL) {
-  console.error('❌ VITE_CALENDAR_SERVICE_URL not set in .env')
-}
-
 const client = axios.create({
-  baseURL: API_URL,
   headers: {
     'Content-Type': 'application/json',
     ...(API_TOKEN && { 'Authorization': `Bearer ${API_TOKEN}` })

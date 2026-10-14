@@ -23,3 +23,8 @@ build/
 .idea/
 .vscode/
 .claude/
+
+**/node_modules
+**/dist
+**/data
+**/logs
