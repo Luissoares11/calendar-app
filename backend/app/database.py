@@ -29,6 +29,13 @@ def init_db():
             )
         """)
 
+        # Added after the first release: add missing columns to existing databases
+        columns = {row[1] for row in con.execute("PRAGMA table_info(events)")}
+        if "is_task" not in columns:
+            con.execute("ALTER TABLE events ADD COLUMN is_task INTEGER NOT NULL DEFAULT 0")
+        if "completed" not in columns:
+            con.execute("ALTER TABLE events ADD COLUMN completed INTEGER NOT NULL DEFAULT 0")
+
         con.commit()
 
 

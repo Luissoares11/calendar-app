@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 
 from server.auth import verify_token
-from app.models import EventCreate, EventUpdate, EventDelete
-from app.features.calendar import add_event, delete_event, edit_event, list_events
+from app.models import EventCreate, EventUpdate, EventDelete, EventComplete
+from app.features.calendar import add_event, delete_event, edit_event, list_events, set_completed
 
 router = APIRouter(prefix="/events", tags=["events"])
 
@@ -32,6 +32,7 @@ def create_event(body: EventCreate, token: str = Depends(verify_token)):
         event_type=body.type,
         notes=body.notes,
         recurrence=body.recurrence or "none",
+        is_task=body.is_task,
     )
 
     if not result["success"]:
@@ -94,10 +95,22 @@ def update_event(body: EventUpdate, token: str = Depends(verify_token)):
         new_time_str=body.new_time,
         new_notes=body.new_notes,
         new_type=body.new_type,
+        new_is_task=body.new_is_task,
     )
 
     if not result["success"]:
         raise HTTPException(status_code=400, detail=result["message"])
+
+    return result
+
+
+@router.patch("/{event_id}")
+def complete_event(event_id: str, body: EventComplete, token: str = Depends(verify_token)):
+    """Mark a task as done (`completed: true`) or not done (`completed: false`)."""
+    result = set_completed(event_id, body.completed)
+
+    if not result["success"]:
+        raise HTTPException(status_code=404, detail=result["message"])
 
     return result
 

@@ -12,6 +12,7 @@ class EventCreate(BaseModel):
     time: str = Field(default="09:00", description="Event time (HH:MM)")
     notes: str = Field(default="", description="Event notes")
     recurrence: Optional[str] = Field(default=None, description="Recurrence: yearly, monthly, weekly, or none")
+    is_task: bool = Field(default=False, description="Task with a completion checkbox")
 
 
 class EventUpdate(BaseModel):
@@ -23,6 +24,12 @@ class EventUpdate(BaseModel):
     new_time: Optional[str] = Field(default=None)
     new_notes: Optional[str] = Field(default=None)
     new_type: Optional[str] = Field(default=None)
+    new_is_task: Optional[bool] = Field(default=None)
+
+
+class EventComplete(BaseModel):
+    """Model for marking a task as done or not done."""
+    completed: bool
 
 
 class EventDelete(BaseModel):

@@ -46,7 +46,7 @@ pip install -r requirements.txt
 python -m uvicorn server.main:app --host 0.0.0.0 --port 8010
 ```
 
-For frontend development, run the Vite dev server in `frontend/` alongside the backend. It proxies `/events` and `/health` to `localhost:8010`. Set `VITE_CALENDAR_API_TOKEN` in `frontend/.env.local` to the same value as `CALENDAR_API_TOKEN`.
+For frontend development, run the Vite dev server in `frontend/` alongside the backend. It proxies `/events`, `/auth` and `/health` to `localhost:8010`. The UI shows a login page; enter the value of `CALENDAR_API_TOKEN` to get a session cookie. Set `COOKIE_SECURE=true` when serving over HTTPS.
 
 ### Running Locally (Docker)
 

@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from app.database import init_db
+from server.auth import router as auth_router
 from server.routers import events
 
 
@@ -37,6 +38,7 @@ app.add_middleware(
 
 # ── Routers ───────────────────────────────────────────────────
 
+app.include_router(auth_router)
 app.include_router(events.router)
 
 

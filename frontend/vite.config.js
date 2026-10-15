@@ -61,7 +61,8 @@ export default defineConfig({
     },
     proxy: {
       '/events': 'http://localhost:8010',
-      '/health': 'http://localhost:8010'
+      '/health': 'http://localhost:8010',
+      '/auth': 'http://localhost:8010'
     }
   },
   build: {

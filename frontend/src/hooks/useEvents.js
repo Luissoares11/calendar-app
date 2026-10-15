@@ -138,13 +138,12 @@ export function useEvents(startDate, endDate) {
     setSyncing(true)
     setError(null)
     try {
-      const updated = await calendarClient.completeEvent(eventId)
+      await calendarClient.completeEvent(eventId)
       setEvents(prev => {
-        const newEvents = prev.map(e => e.id === eventId ? updated : e)
+        const newEvents = prev.map(e => e.id === eventId ? { ...e, completed: true } : e)
         localStorage.setItem('calendar_events', JSON.stringify(newEvents))
         return newEvents
       })
-      return updated
     } catch (err) {
       setError(err.message)
       throw err
@@ -158,13 +157,12 @@ export function useEvents(startDate, endDate) {
     setSyncing(true)
     setError(null)
     try {
-      const updated = await calendarClient.uncompleteEvent(eventId)
+      await calendarClient.uncompleteEvent(eventId)
       setEvents(prev => {
-        const newEvents = prev.map(e => e.id === eventId ? updated : e)
+        const newEvents = prev.map(e => e.id === eventId ? { ...e, completed: false } : e)
         localStorage.setItem('calendar_events', JSON.stringify(newEvents))
         return newEvents
       })
-      return updated
     } catch (err) {
       setError(err.message)
       throw err

@@ -3,7 +3,7 @@ import { formatDateKey } from '../utils/dateUtils'
 
 const CATEGORIES = ['Exam', 'Appointment', 'Birthday', 'Meeting', 'Deadline', 'Other']
 
-export default function EventForm({ selectedDate, onSubmit, onClose, editingEvent }) {
+export default function EventForm({ selectedDate, onSubmit, onClose, onDelete, editingEvent }) {
   const [formData, setFormData] = useState({
     title: '',
     start_time: '',
@@ -13,6 +13,7 @@ export default function EventForm({ selectedDate, onSubmit, onClose, editingEven
   })
   const [errors, setErrors] = useState({})
   const [submitting, setSubmitting] = useState(false)
+  const [confirmingDelete, setConfirmingDelete] = useState(false)
 
   useEffect(() => {
     if (editingEvent) {
@@ -81,6 +82,22 @@ export default function EventForm({ selectedDate, onSubmit, onClose, editingEven
     }
   }
 
+  const handleDelete = async () => {
+    // Two taps: the first asks for confirmation, the second deletes
+    if (!confirmingDelete) {
+      setConfirmingDelete(true)
+      return
+    }
+    setSubmitting(true)
+    try {
+      await onDelete()
+    } catch (err) {
+      setErrors({ submit: err.message })
+      setSubmitting(false)
+      setConfirmingDelete(false)
+    }
+  }
+
   const dateStr = selectedDate.toLocaleString('en-US', {
     weekday: 'short',
     month: 'short',
@@ -121,7 +138,6 @@ export default function EventForm({ selectedDate, onSubmit, onClose, editingEven
             onChange={handleChange}
             placeholder="Event title"
             className={`form-input ${errors.title ? 'error' : ''}`}
-            autoFocus
             maxLength="100"
             disabled={submitting}
           />
@@ -195,6 +211,16 @@ export default function EventForm({ selectedDate, onSubmit, onClose, editingEven
         </div>
 
         <div className="form-actions">
+          {editingEvent && (
+            <button
+              type="button"
+              className="btn btn-danger"
+              onClick={handleDelete}
+              disabled={submitting}
+            >
+              {confirmingDelete ? 'Tap again' : 'Delete'}
+            </button>
+          )}
           <button
             type="submit"
             className="btn btn-primary"
@@ -208,14 +234,6 @@ export default function EventForm({ selectedDate, onSubmit, onClose, editingEven
             ) : (
               editingEvent ? 'Update Event' : 'Add Event'
             )}
-          </button>
-          <button
-            type="button"
-            className="btn btn-secondary"
-            onClick={onClose}
-            disabled={submitting}
-          >
-            Cancel
           </button>
         </div>
       </form>

@@ -3,6 +3,8 @@ import MonthGrid from './components/MonthGrid'
 import SidePanel from './components/SidePanel'
 import EventForm from './components/EventForm'
 import NotifyButton from './components/NotifyButton'
+import Dashboard from './components/Dashboard'
+import { CalendarIcon, DashboardIcon } from './components/Icons'
 import { useEvents } from './hooks/useEvents'
 import { getMonthDates } from './utils/dateUtils'
 import './styles/theme.css'
@@ -59,43 +61,8 @@ export default function App() {
   const [selectedDate, setSelectedDate] = useState(new Date())
   const [showEventForm, setShowEventForm] = useState(false)
   const [editingEvent, setEditingEvent] = useState(null)
+  const [view, setView] = useState('dashboard') // 'calendar' | 'dashboard'
   const [demoMode, setDemoMode] = useState(DEMO_MODE)
-  const [apiStatus, setApiStatus] = useState(null)
-
-  // Debug API on mount
-  useEffect(() => {
-    const debugAPI = async () => {
-      const apiToken = import.meta.env.VITE_CALENDAR_API_TOKEN
-      console.log('=== CALENDAR APP DEBUG ===')
-      console.log('API URL:', window.location.origin)
-      console.log('API Token:', apiToken ? '✓ Present (trimmed)' : '✗ Missing')
-
-      try {
-        console.log('Testing connection to /health')
-        const response = await fetch('/health', {
-          method: 'GET',
-          headers: { 'Accept': 'application/json' },
-          timeout: 5000
-        })
-        console.log('✅ Health check status:', response.status)
-        setApiStatus(`Connected (${response.status})`)
-      } catch (err) {
-        console.error('❌ API connection failed:', err.message)
-        setApiStatus(`Error: ${err.message}`)
-
-        // After 8 seconds of loading, offer demo mode
-        const timeout = setTimeout(() => {
-          if (error) {
-            console.log('Offering demo mode as fallback...')
-          }
-        }, 8000)
-
-        return () => clearTimeout(timeout)
-      }
-    }
-
-    debugAPI()
-  }, [])
 
   // Memoize dates so they don't change on every render
   const { startDate, endDate } = useMemo(() => {
@@ -211,6 +178,21 @@ export default function App() {
     setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1))
   }
 
+  // Opens the calendar on a month picked from the dashboard
+  const handleSelectMonth = (date) => {
+    setCurrentDate(date)
+    setSelectedDate(null)
+    setView('calendar')
+  }
+
+  // Opens the calendar on an event's day, so its events show in the side panel
+  const handleSelectEventDate = (dateKey) => {
+    const [y, m, d] = dateKey.split('-').map(Number)
+    setCurrentDate(new Date(y, m - 1, 1))
+    setSelectedDate(new Date(y, m - 1, d))
+    setView('calendar')
+  }
+
   const handleAddEvent = async (eventData) => {
     try {
       if (editingEvent) {
@@ -245,6 +227,11 @@ export default function App() {
     }
   }
 
+  const handleDeleteFromForm = async () => {
+    await handleDeleteEvent(editingEvent.id, editingEvent.title)
+    handleCloseForm()
+  }
+
   const handleEditEvent = (event) => {
     setEditingEvent(event)
     setShowEventForm(true)
@@ -257,7 +244,7 @@ export default function App() {
 
   return (
     <div className="app">
-      <div className="main-content">
+      <div className="main-content" style={{ display: view === 'calendar' ? undefined : 'none' }}>
         <MonthGrid
           currentDate={currentDate}
           selectedDate={selectedDate}
@@ -274,6 +261,7 @@ export default function App() {
             onSubmit={handleAddEvent}
             onClose={handleCloseForm}
             editingEvent={editingEvent}
+            onDelete={handleDeleteFromForm}
           />
         )}
 
@@ -287,12 +275,31 @@ export default function App() {
               setEditingEvent(null)
             }}
             onCompleteEvent={handleCompleteEvent}
-            onDeleteEvent={handleDeleteEvent}
             onEditEvent={handleEditEvent}
             loading={loading}
           />
         )}
       </div>
+
+      {view === 'dashboard' && (
+        <Dashboard
+          events={events}
+          currentDate={currentDate}
+          onSelectMonth={handleSelectMonth}
+          onSelectEventDate={handleSelectEventDate}
+        />
+      )}
+
+      <nav className="view-tabs">
+        <button className={view === 'dashboard' ? 'active' : ''} onClick={() => setView('dashboard')}>
+          <DashboardIcon />
+          <span>Dashboard</span>
+        </button>
+        <button className={view === 'calendar' ? 'active' : ''} onClick={() => setView('calendar')}>
+          <CalendarIcon />
+          <span>Calendar</span>
+        </button>
+      </nav>
 
       {demoMode && (
         <div
@@ -382,31 +389,6 @@ export default function App() {
         <NotifyButton />
       </div>
 
-      {/* Debug Panel */}
-      <div
-        style={{
-          position: 'fixed',
-          bottom: '1rem',
-          right: '1rem',
-          padding: '0.75rem 1rem',
-          backgroundColor: 'rgba(0, 0, 0, 0.7)',
-          border: '1px solid var(--border-color)',
-          borderRadius: 'var(--radius-sm)',
-          color: 'var(--text-tertiary)',
-          fontSize: '0.75rem',
-          maxWidth: '250px',
-          zIndex: 50,
-          cursor: 'pointer'
-        }}
-        onClick={() => console.log('Check browser console for more info')}
-      >
-        <div style={{ marginBottom: '0.25rem' }}>
-          {demoMode ? '📱 Demo Mode' : apiStatus || '🔄 Connecting...'}
-        </div>
-        <div style={{ fontSize: '0.65rem', color: 'var(--text-tertiary)', marginTop: '0.25rem' }}>
-          {window.location.origin}
-        </div>
-      </div>
     </div>
   )
 }

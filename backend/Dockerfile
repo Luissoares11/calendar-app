@@ -8,10 +8,6 @@ RUN npm ci
 
 COPY frontend/ ./
 
-# Baked into the bundle at build time, so it must be declared before the build step
-ARG VITE_CALENDAR_API_TOKEN
-ENV VITE_CALENDAR_API_TOKEN=$VITE_CALENDAR_API_TOKEN
-
 RUN npm run build
 
 # Stage 2: the backend, serving the built frontend from the same port

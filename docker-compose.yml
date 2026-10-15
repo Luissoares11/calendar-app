@@ -3,9 +3,6 @@ services:
     build:
       context: .
       dockerfile: backend/Dockerfile
-      args:
-        - VITE_CALENDAR_API_TOKEN=${CALENDAR_API_TOKEN:-default-token}
-
     container_name: calendar-service
 
     env_file: .env

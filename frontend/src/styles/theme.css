@@ -941,3 +941,435 @@ body {
     font-size: 1rem;
   }
 }
+
+/* Login */
+.login-screen {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 16px;
+  padding: 24px;
+  max-width: 360px;
+  margin: 0 auto;
+}
+
+.login-screen h1 {
+  font-size: 28px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.login-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.login-button {
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  background: var(--accent);
+  color: #000000;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.login-button:disabled {
+  opacity: 0.6;
+}
+
+.login-error {
+  color: var(--red);
+  font-size: 14px;
+  text-align: center;
+}
+
+/* ==================== EVENT CARDS ==================== */
+.event-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.event-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: var(--bg-secondary);
+  border-radius: 14px;
+  border-left: 5px solid var(--cat-color);
+  cursor: pointer;
+  transition: background 150ms;
+}
+
+.event-card:active {
+  background: var(--bg-tertiary);
+}
+
+.event-card.completed {
+  opacity: 0.6;
+}
+
+.event-card-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.event-card-title {
+  font-size: 1rem;
+  font-weight: 600;
+  word-break: break-word;
+}
+
+.event-card-meta {
+  font-size: 0.8rem;
+  color: var(--text-tertiary);
+  margin-top: 2px;
+}
+
+.event-card-description {
+  flex: 0 1 45%;
+  min-width: 0;
+  font-size: 0.8rem;
+  color: var(--text-tertiary);
+  text-align: right;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.btn-danger {
+  background: transparent;
+  color: var(--red);
+  border: 1px solid var(--red);
+}
+
+.btn-danger:active {
+  background: var(--red);
+  color: #ffffff;
+  transform: scale(0.95);
+}
+
+/* ==================== VIEW TABS ==================== */
+.view-tabs {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem calc(env(safe-area-inset-bottom, 0px) + 0.5rem);
+  background: var(--bg-base);
+  border-top: 1px solid var(--bg-tertiary);
+}
+
+.view-tabs button {
+  flex: 1;
+  padding: 0.6rem;
+  border: none;
+  border-radius: 0.65rem;
+  background: transparent;
+  color: var(--text-tertiary);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.view-tabs button.active {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+/* ==================== DASHBOARD ==================== */
+.dashboard {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.dash-year {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.dash-year h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.dash-year button {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+  padding: 0.5rem;
+  cursor: pointer;
+}
+
+.dash-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+
+.dash-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.9rem 0.5rem;
+  background: var(--bg-secondary);
+  border-radius: 14px;
+}
+
+.dash-tile-value {
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.dash-tile-label {
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+  margin-top: 2px;
+}
+
+.dash-months {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem;
+}
+
+.dash-month {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 0.9rem;
+  background: var(--bg-secondary);
+  border: 1px solid transparent;
+  border-radius: 14px;
+  color: var(--text-primary);
+  text-align: left;
+  cursor: pointer;
+}
+
+.dash-month.current {
+  border-color: var(--text-primary);
+}
+
+.dash-month:active {
+  background: var(--bg-tertiary);
+}
+
+.dash-month-name {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.dash-month-count,
+.dash-month-tasks {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.dash-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.dash-chip {
+  font-size: 0.7rem;
+  padding: 2px 6px;
+  border-radius: 999px;
+  border-left: 3px solid var(--cat-color);
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+/* ==================== DASHBOARD OPTIONS & LISTS ==================== */
+.dash-options {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem;
+}
+
+.dash-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 1rem 0.5rem;
+  background: var(--bg-secondary);
+  border: none;
+  border-radius: 14px;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.dash-option:active {
+  background: var(--bg-tertiary);
+}
+
+.dash-option-icon {
+  font-size: 1.4rem;
+}
+
+.dash-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.dash-list-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 0.9rem 1rem;
+  background: var(--bg-secondary);
+  border-left: 5px solid var(--cat-color);
+  border-radius: 14px;
+  color: var(--text-primary);
+  text-align: left;
+}
+
+.dash-type-button {
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  border: none;
+  width: 100%;
+  cursor: pointer;
+}
+
+.dash-type-button:active {
+  background: var(--bg-tertiary);
+}
+
+.dash-list-date {
+  font-size: 0.8rem;
+  color: var(--text-tertiary);
+}
+
+.dash-list-title {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.dash-year-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+/* ==================== DASHBOARD GREETING & 30-DAY CARD ==================== */
+.dash-greeting h1 {
+  font-size: 1.8rem;
+  font-weight: 700;
+}
+
+.dash-greeting p {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+.dash-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: var(--bg-secondary);
+  border-radius: 14px;
+}
+
+.dash-card-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+.dash-day {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.dash-day-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.dash-upcoming-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0.75rem;
+  background: var(--bg-tertiary);
+  border-left: 4px solid var(--cat-color);
+  border-radius: 10px;
+}
+
+.dash-upcoming-time {
+  font-size: 0.8rem;
+  color: var(--text-tertiary);
+  min-width: 48px;
+}
+
+.dash-upcoming-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+/* Icons inside tab bar and option buttons */
+.view-tabs button {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.view-tabs svg {
+  width: 18px;
+  height: 18px;
+}
+
+.dash-option {
+  gap: 6px;
+}
+
+/* Event rows that are buttons: reset button look */
+button.dash-list-item,
+button.dash-upcoming-item {
+  border: none;
+  width: 100%;
+  font: inherit;
+  cursor: pointer;
+}
+
+button.dash-list-item:active,
+button.dash-upcoming-item:active {
+  background: var(--bg-tertiary);
+}
+
+button.dash-upcoming-item {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.75rem;
+  text-align: left;
+  color: var(--text-primary);
+}

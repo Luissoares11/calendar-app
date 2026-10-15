@@ -1,14 +1,9 @@
 import axios from 'axios'
 
-const API_TOKEN = import.meta.env.VITE_CALENDAR_API_TOKEN?.trim()
-
-console.log('Calendar API Configuration:')
-console.log('  Token:', API_TOKEN ? `✓ Set (${API_TOKEN.substring(0, 10)}...)` : '✗ Missing')
-
+// Session cookie is set by /auth/login and sent automatically (same origin)
 const client = axios.create({
   headers: {
-    'Content-Type': 'application/json',
-    ...(API_TOKEN && { 'Authorization': `Bearer ${API_TOKEN}` })
+    'Content-Type': 'application/json'
   },
   timeout: 10000
 })
@@ -26,6 +21,10 @@ client.interceptors.response.use(
     return response
   },
   error => {
+    // Session expired or missing: let the app show the login page
+    if (error.response?.status === 401 && !error.config?.url?.startsWith('/auth/login')) {
+      window.dispatchEvent(new Event('unauthorized'))
+    }
     console.error(`[API] ❌ Error:`)
     console.error('  Message:', error.message)
     console.error('  Status:', error.response?.status)
@@ -93,8 +92,8 @@ export async function fetchEvents(startDate, endDate) {
         start_time: time,
         category: event.type || 'other',
         type: event.type || 'other',
-        is_task: false,
-        completed: false,
+        is_task: !!event.is_task,
+        completed: !!event.completed,
         description: event.notes || '',
         notes: event.notes || '',
         recurrence: event.recurrence || 'none'
@@ -139,7 +138,8 @@ export async function createEvent(eventData) {
       date: dateStr,
       time: eventData.start_time || '',
       notes: eventData.description || '',
-      recurrence: 'none'
+      recurrence: 'none',
+      is_task: !!eventData.is_task
     }
     const response = await client.post('/events', payload)
     return response.data
@@ -162,7 +162,8 @@ export async function updateEvent(eventId, eventData, originalTitle) {
       new_title: eventData.title,
       new_date: eventData.date,
       new_time: eventData.start_time || '',
-      new_notes: eventData.description || ''
+      new_notes: eventData.description || '',
+      new_is_task: !!eventData.is_task
     }
     const response = await client.post('/events/edit', payload)
 
@@ -223,6 +224,27 @@ export async function uncompleteEvent(eventId) {
   } catch (error) {
     handleError(error)
   }
+}
+
+/**
+ * Log in with the API token; the server answers with a session cookie
+ */
+export async function login(token) {
+  await client.post('/auth/login', { token })
+}
+
+/**
+ * End the current session
+ */
+export async function logout() {
+  await client.post('/auth/logout')
+}
+
+/**
+ * Resolves if the current session (or cookie) is valid, rejects otherwise
+ */
+export async function checkAuth() {
+  await client.get('/auth/check', { timeout: 5000 })
 }
 
 /**

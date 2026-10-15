@@ -27,6 +27,7 @@ def add_event(
     event_type: str = "other",
     notes: str = "",
     recurrence: str = "none",
+    is_task: bool = False,
 ) -> dict:
     """
     Add a new event to the calendar.
@@ -41,8 +42,8 @@ def add_event(
 
         with _conn() as con:
             con.execute(
-                "INSERT INTO events (id, title, type, start_time, end_time, notes, recurrence) "
-                "VALUES (?, ?, ?, ?, ?, ?, ?)",
+                "INSERT INTO events (id, title, type, start_time, end_time, notes, recurrence, is_task) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
                 (
                     event_id,
                     title,
@@ -51,6 +52,7 @@ def add_event(
                     dt_end.isoformat(),
                     notes,
                     recurrence_value,
+                    1 if is_task else 0,
                 )
             )
 
@@ -89,12 +91,13 @@ def edit_event(
     new_time_str: str = None,
     new_notes: str = None,
     new_type: str = None,
+    new_is_task: bool = None,
 ) -> dict:
     """Edit an existing event."""
     try:
         with _conn() as con:
             row = con.execute(
-                "SELECT id, title, type, start_time, end_time, notes FROM events WHERE title LIKE ?",
+                "SELECT id, title, type, start_time, end_time, notes, is_task FROM events WHERE title LIKE ?",
                 (f"%{title}%",)
             ).fetchone()
 
@@ -115,10 +118,11 @@ def edit_event(
             final_title = new_title if new_title else row["title"]
             final_notes = new_notes if new_notes is not None else row["notes"]
             final_type = new_type.lower() if new_type else row["type"]
+            final_is_task = row["is_task"] if new_is_task is None else (1 if new_is_task else 0)
 
             con.execute(
-                "UPDATE events SET title = ?, type = ?, start_time = ?, end_time = ?, notes = ? WHERE id = ?",
-                (final_title, final_type, new_dt.isoformat(), new_dt_end.isoformat(), final_notes, row["id"])
+                "UPDATE events SET title = ?, type = ?, start_time = ?, end_time = ?, notes = ?, is_task = ? WHERE id = ?",
+                (final_title, final_type, new_dt.isoformat(), new_dt_end.isoformat(), final_notes, final_is_task, row["id"])
             )
 
         return {"success": True, "message": f"Updated event '{final_title}'."}
@@ -126,6 +130,18 @@ def edit_event(
         return {"success": False, "message": str(e)}
     except Exception as e:
         return {"success": False, "message": f"I couldn't update that event: {e}"}
+
+
+def set_completed(event_id: str, completed: bool) -> dict:
+    """Mark an event (usually a task) as done or not done."""
+    with _conn() as con:
+        cur = con.execute(
+            "UPDATE events SET completed = ? WHERE id = ?",
+            (1 if completed else 0, event_id)
+        )
+        if cur.rowcount == 0:
+            return {"success": False, "message": "Event not found."}
+    return {"success": True, "event_id": event_id, "completed": completed, "message": "Updated."}
 
 
 def _next_occurrence(dt: datetime, recurrence: str, now: datetime) -> datetime:
@@ -172,7 +188,8 @@ def list_events(days_ahead: int = 30, include_past: bool = False, all_events: bo
 
     with _conn() as con:
         rows = con.execute(
-            "SELECT id, title, type, start_time, end_time, notes, recurrence, created_at FROM events ORDER BY start_time"
+            "SELECT id, title, type, start_time, end_time, notes, recurrence, created_at, is_task, completed "
+            "FROM events ORDER BY start_time"
         ).fetchall()
 
     def effective_dt(row):
@@ -223,7 +240,9 @@ def list_events(days_ahead: int = 30, include_past: bool = False, all_events: bo
             "end_time": row["end_time"],
             "notes": row["notes"],
             "recurrence": row["recurrence"],
-            "created_at": row["created_at"]
+            "created_at": row["created_at"],
+            "is_task": bool(row["is_task"]),
+            "completed": bool(row["completed"])
         })
 
     return {
