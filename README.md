@@ -1,4 +1,4 @@
-# Calendar Service
+# Calendar App
 
 A standalone microservice for managing calendar events, built to work with the EDITH AI orchestrator.
 
