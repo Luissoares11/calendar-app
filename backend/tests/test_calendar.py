@@ -14,6 +14,16 @@ from app.features.calendar import add_event, list_events, delete_event, edit_eve
 from app.utils import TIMEZONE
 
 
+def days_from_today(n: int) -> str:
+    """Date (DD/MM/YYYY) n days from today, so the tests do not go stale."""
+    return (datetime.now(ZoneInfo(TIMEZONE)) + timedelta(days=n)).strftime("%d/%m/%Y")
+
+
+def iso_day_from_today(n: int) -> str:
+    """Date (YYYY-MM-DD) n days from today, to match stored start times."""
+    return (datetime.now(ZoneInfo(TIMEZONE)) + timedelta(days=n)).strftime("%Y-%m-%d")
+
+
 @pytest.fixture(scope="function", autouse=True)
 def setup_db():
     """Initialize fresh database for each test."""
@@ -30,7 +40,7 @@ class TestListEvents:
     def test_list_events_includes_created_at(self):
         """Test that list_events returns created_at without crashing."""
         # Add an event (use future date)
-        add_event("Team Meeting", "15/10/2026", "10:00", "meeting", "Quarterly sync")
+        add_event("Team Meeting", days_from_today(1), "10:00", "meeting", "Quarterly sync")
 
         # List events should not crash and include created_at
         result = list_events(days_ahead=30)
@@ -43,9 +53,9 @@ class TestListEvents:
 
     def test_list_events_multiple_events(self):
         """Test list_events with multiple events all have created_at."""
-        add_event("Meeting 1", "15/10/2026", "09:00", "meeting")
-        add_event("Exam", "16/10/2026", "14:00", "exam")
-        add_event("Birthday", "17/10/2026", "00:00", "birthday")
+        add_event("Meeting 1", days_from_today(1), "09:00", "meeting")
+        add_event("Exam", days_from_today(2), "14:00", "exam")
+        add_event("Birthday", days_from_today(3), "00:00", "birthday")
 
         result = list_events(days_ahead=30)
 
@@ -149,7 +159,7 @@ class TestEditEvent:
     def test_edit_event_description_only(self):
         """Test editing only the event description/notes."""
         # Add initial event (use future date)
-        add_event("Team Meeting", "15/10/2026", "10:00", "meeting", "Initial notes")
+        add_event("Team Meeting", days_from_today(1), "10:00", "meeting", "Initial notes")
 
         # Edit only the description
         result = edit_event(
@@ -170,7 +180,7 @@ class TestEditEvent:
     def test_edit_event_clear_description(self):
         """Test clearing an event description by setting it to empty."""
         # Add event with notes (use future date)
-        add_event("Doctor Appointment", "16/10/2026", "14:00", "appointment", "Annual checkup")
+        add_event("Doctor Appointment", days_from_today(2), "14:00", "appointment", "Annual checkup")
 
         # Clear the description
         result = edit_event(
@@ -188,7 +198,7 @@ class TestEditEvent:
 
     def test_edit_event_description_and_title(self):
         """Test editing both title and description."""
-        add_event("Old Title", "15/10/2026", "10:00", "meeting", "Old notes")
+        add_event("Old Title", days_from_today(1), "10:00", "meeting", "Old notes")
 
         result = edit_event(
             title="Old Title",
@@ -206,11 +216,11 @@ class TestEditEvent:
 
     def test_edit_event_description_and_datetime(self):
         """Test editing description along with date and time."""
-        add_event("Meeting", "15/10/2026", "10:00", "meeting", "Original notes")
+        add_event("Meeting", days_from_today(1), "10:00", "meeting", "Original notes")
 
         result = edit_event(
             title="Meeting",
-            new_date_str="16/10/2026",
+            new_date_str=days_from_today(2),
             new_time_str="14:30",
             new_notes="Rescheduled meeting discussion points"
         )
@@ -220,19 +230,19 @@ class TestEditEvent:
         list_result = list_events(days_ahead=30)
         event = list_result["events"][0]
         assert event["notes"] == "Rescheduled meeting discussion points"
-        assert "16" in event["start_time"]
+        assert iso_day_from_today(2) in event["start_time"]
         assert "14:30" in event["start_time"]
         print(f"✓ Edit description and datetime: all updated correctly")
 
     def test_edit_event_all_fields(self):
         """Test editing title, type, date, time, and description together."""
-        add_event("Project Task", "15/10/2026", "09:00", "other", "Initial task")
+        add_event("Project Task", days_from_today(1), "09:00", "other", "Initial task")
 
         result = edit_event(
             title="Project Task",
             new_title="Q4 Project Deadline",
             new_type="deadline",
-            new_date_str="20/10/2026",
+            new_date_str=days_from_today(6),
             new_time_str="17:00",
             new_notes="Final submission deadline for Q4 project milestone"
         )
@@ -250,7 +260,7 @@ class TestEditEvent:
 
     def test_edit_event_fuzzy_match_title(self):
         """Test editing event with fuzzy title matching."""
-        add_event("University Meeting", "15/10/2026", "10:00", "meeting", "Discuss plans")
+        add_event("University Meeting", days_from_today(1), "10:00", "meeting", "Discuss plans")
 
         # Edit using partial title match
         result = edit_event(
@@ -280,7 +290,7 @@ class TestEditEvent:
         """Test that editing one field doesn't affect others."""
         add_event(
             title="Meeting",
-            date_str="15/10/2026",
+            date_str=days_from_today(1),
             time_str="10:00",
             event_type="meeting",
             notes="Original notes",
@@ -298,13 +308,13 @@ class TestEditEvent:
         assert event["recurrence"] == "weekly"
         assert event["type"] == "meeting"
         assert event["title"] == "Meeting"
-        assert "15" in event["start_time"]
+        assert iso_day_from_today(1) in event["start_time"]
         assert "10:00" in event["start_time"]
         print(f"✓ Edit preserves other fields: unmodified fields unchanged")
 
     def test_edit_event_description_with_special_chars(self):
         """Test editing description with special characters."""
-        add_event("Meeting", "15/10/2026", "10:00", "meeting", "Initial")
+        add_event("Meeting", days_from_today(1), "10:00", "meeting", "Initial")
 
         special_notes = 'Notes with "quotes", apostrophes\', and émojis 🎉'
         result = edit_event(
@@ -321,7 +331,7 @@ class TestEditEvent:
 
     def test_edit_event_long_description(self):
         """Test editing with a very long description."""
-        add_event("Meeting", "15/10/2026", "10:00", "meeting", "Short")
+        add_event("Meeting", days_from_today(1), "10:00", "meeting", "Short")
 
         long_notes = "x" * 500
         result = edit_event(
@@ -345,7 +355,7 @@ class TestIntegration:
         """Test adding event and listing returns all fields including created_at."""
         result = add_event(
             title="Project Deadline",
-            date_str="20/10/2026",
+            date_str=days_from_today(6),
             time_str="17:00",
             event_type="deadline",
             notes="Q3 milestone",
