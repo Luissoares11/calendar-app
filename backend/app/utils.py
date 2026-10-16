@@ -19,6 +19,10 @@ def _parse_datetime(date_str: str, time_str: str = "09:00") -> datetime:
     - YYYY-MM-DD
     - DD-MM-YYYY
     """
+    # No time given: store as all-day (midnight), which the UI shows without a time
+    if not time_str:
+        time_str = "00:00"
+
     # Try different date formats
     date_formats = ["%d/%m/%Y", "%Y-%m-%d", "%d-%m-%Y"]
     dt = None

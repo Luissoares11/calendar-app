@@ -42,7 +42,8 @@ client.interceptors.response.use(
 const handleError = (error) => {
   if (error.response) {
     const status = error.response.status
-    const message = error.response.data?.message || error.response.statusText
+    // The API sends the reason in `detail` (FastAPI) or `message` (older responses)
+    const message = error.response.data?.detail || error.response.data?.message || error.response.statusText
     console.error(`[API Error] ${status}: ${message}`)
     throw new Error(`[${status}] ${message}`)
   } else if (error.request) {
@@ -79,7 +80,8 @@ export async function fetchEvents(startDate, endDate) {
         const dateMatch = event.start_time.match(/^(\d{4}-\d{2}-\d{2})/)
         const timeMatch = event.start_time.match(/T(\d{2}:\d{2})/)
         date = dateMatch ? dateMatch[1] : new Date().toISOString().split('T')[0]
-        time = timeMatch ? timeMatch[1] : ''
+        // 00:00 is how all-day events are stored, so show them without a time
+        time = timeMatch && timeMatch[1] !== '00:00' ? timeMatch[1] : ''
       } else {
         date = new Date().toISOString().split('T')[0]
         time = ''
