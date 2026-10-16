@@ -19,6 +19,7 @@ class EventUpdate(BaseModel):
     """Model for updating an event."""
     action: str = Field(..., description="Action type: 'edit'")
     title: str = Field(..., description="Event title to search for")
+    id: Optional[str] = Field(default=None, description="Exact event ID; preferred over title")
     new_title: Optional[str] = Field(default=None)
     new_date: Optional[str] = Field(default=None)
     new_time: Optional[str] = Field(default=None)
@@ -36,6 +37,7 @@ class EventDelete(BaseModel):
     """Model for deleting an event."""
     action: str = Field(..., description="Action type: 'delete'")
     title: str = Field(..., description="Event title to search for")
+    id: Optional[str] = Field(default=None, description="Exact event ID; preferred over title")
 
 
 class Event(BaseModel):

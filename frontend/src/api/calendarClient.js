@@ -158,6 +158,7 @@ export async function updateEvent(eventId, eventData, originalTitle) {
   try {
     const payload = {
       action: 'edit',
+      id: eventId,
       title: originalTitle || eventData.title,
       new_title: eventData.title,
       new_date: eventData.date,
@@ -193,6 +194,7 @@ export async function deleteEvent(eventId, eventTitle) {
   try {
     const payload = {
       action: 'delete',
+      id: eventId,
       title: eventTitle
     }
     const response = await client.post('/events/delete', payload)

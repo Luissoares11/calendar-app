@@ -96,6 +96,7 @@ def update_event(body: EventUpdate, token: str = Depends(verify_token)):
         new_notes=body.new_notes,
         new_type=body.new_type,
         new_is_task=body.new_is_task,
+        event_id=body.id,
     )
 
     if not result["success"]:
@@ -128,7 +129,7 @@ def remove_event(body: EventDelete, token: str = Depends(verify_token)):
     }
     ```
     """
-    result = delete_event(body.title)
+    result = delete_event(body.title, event_id=body.id)
 
     if not result["success"]:
         raise HTTPException(status_code=404, detail=result["message"])

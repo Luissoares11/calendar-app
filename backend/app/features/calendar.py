@@ -68,14 +68,17 @@ def add_event(
         return {"success": False, "message": f"I couldn't add that event: {e}"}
 
 
-def delete_event(title: str) -> dict:
-    """Delete an event by title (fuzzy match)."""
+def delete_event(title: str, event_id: str = None) -> dict:
+    """Delete an event by ID when given, otherwise by title (fuzzy match)."""
     try:
         with _conn() as con:
-            row = con.execute(
-                "SELECT id, title FROM events WHERE title LIKE ?",
-                (f"%{title}%",)
-            ).fetchone()
+            if event_id:
+                row = con.execute("SELECT id, title FROM events WHERE id = ?", (event_id,)).fetchone()
+            else:
+                row = con.execute(
+                    "SELECT id, title FROM events WHERE title LIKE ?",
+                    (f"%{title}%",)
+                ).fetchone()
             if row:
                 con.execute("DELETE FROM events WHERE id = ?", (row["id"],))
                 return {"success": True, "message": f"Removed event '{row['title']}'."}
@@ -92,14 +95,21 @@ def edit_event(
     new_notes: str = None,
     new_type: str = None,
     new_is_task: bool = None,
+    event_id: str = None,
 ) -> dict:
-    """Edit an existing event."""
+    """Edit an existing event, found by ID when given, otherwise by title."""
     try:
         with _conn() as con:
-            row = con.execute(
-                "SELECT id, title, type, start_time, end_time, notes, is_task FROM events WHERE title LIKE ?",
-                (f"%{title}%",)
-            ).fetchone()
+            if event_id:
+                row = con.execute(
+                    "SELECT id, title, type, start_time, end_time, notes, is_task FROM events WHERE id = ?",
+                    (event_id,)
+                ).fetchone()
+            else:
+                row = con.execute(
+                    "SELECT id, title, type, start_time, end_time, notes, is_task FROM events WHERE title LIKE ?",
+                    (f"%{title}%",)
+                ).fetchone()
 
             if not row:
                 return {"success": False, "message": "I couldn't find that event."}

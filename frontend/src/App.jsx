@@ -104,14 +104,14 @@ export default function App() {
     return apiAddEvent(eventData)
   }
 
-  const updateEvent = async (eventId, eventData) => {
+  const updateEvent = async (eventId, eventData, originalTitle) => {
     if (demoMode) {
       setDemoEventsList(demoEventsList.map(e =>
         e.id === eventId ? { ...e, ...eventData } : e
       ))
       return { id: eventId, ...eventData }
     }
-    return apiUpdateEvent(eventId, eventData)
+    return apiUpdateEvent(eventId, eventData, originalTitle)
   }
 
   const removeEvent = async (eventId, eventTitle) => {
